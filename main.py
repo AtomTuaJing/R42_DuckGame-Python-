@@ -1,31 +1,16 @@
 import cv2
-from fastapi import FastAPI, WebSocket
 from ultralytics import YOLO
-from fastapi.middleware.cors import CORSMiddleware
 
 model = YOLO("best.pt")
 
-app = FastAPI()
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 cap = cv2.VideoCapture(0)
 
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1980)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
-@app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
-    
+file_path = "/Users/atomtuajing/Documents/duck_game/R42_DuckGame-Flutter-/Flutter/duck_game/assets/data.txt" # fix file path
 
-    while True:
+while True:
         success, frame = cap.read()
 
         if not success:
@@ -39,10 +24,9 @@ async def websocket_endpoint(websocket: WebSocket):
                 centerY = (y1 + y2) / 2
 
                 if centerY:
-                    await websocket.send_text(str(centerY))
+                    with open(file_path, 'w') as file:
+                        file.write(str(centerY))
                     print(centerY)
-                else:
-                    await websocket.send_text("CenterY Not Found")
-
-    cap.release()
-    cv2.destroyAllWindows()
+                    
+cap.release()
+cv2.destroyAllWindows()
